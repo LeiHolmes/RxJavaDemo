@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private void initObserverByChain() {
         //链式编程
         Observable.create(new Observable.OnSubscribe<Object>() {
+            /**
+             * call()方法中的参数Subscriber其实就是subscribe()方法中的观察者Observer。
+             */
             @Override
             public void call(Subscriber<? super Object> subscriber) {
                 //被观察者的数据操作更新
