@@ -14,7 +14,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initObserver();
+//        initObserver();
+        initObserverByChain();
     }
 
     private void initObserver() {
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void call(Subscriber<? super Object> subscriber) {
+                //被观察者的数据操作更新
                 for (int i = 0; i < 5; i++) {
                     subscriber.onNext("xulei" + i);
                 }
@@ -56,5 +58,34 @@ public class MainActivity extends AppCompatActivity {
 
         //step3 被观察者Observable订阅观察者Observer
         observable1.subscribe(observer);
+    }
+
+    private void initObserverByChain() {
+        //链式编程
+        Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                //被观察者的数据操作更新
+                for (int i = 0; i < 5; i++) {
+                    subscriber.onNext("xulei" + i);
+                }
+                subscriber.onCompleted();
+            }
+        }).subscribe(new Observer<Object>() {
+            @Override
+            public void onCompleted() {
+                Log.e("rx_test", "onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e("rx_test", "onError");
+            }
+
+            @Override
+            public void onNext(Object o) {
+                Log.e("rx_test", "onNext:" + o.toString());
+            }
+        });
     }
 }
