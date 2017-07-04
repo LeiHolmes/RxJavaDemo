@@ -7,6 +7,8 @@ import android.util.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,10 +16,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        initObserver();
+        //基本操作
+        initObserver();
         initObserverByChain();
+        //异步
+
+        //操作符
+        mapOperator();
     }
 
+    /**
+     * 基本操作
+     */
     private void initObserver() {
         //step1 创建观察者Observer
         Observer observer = new Observer() {
@@ -60,8 +70,10 @@ public class MainActivity extends AppCompatActivity {
         observable1.subscribe(observer);
     }
 
+    /**
+     * 链式编程
+     */
     private void initObserverByChain() {
-        //链式编程
         Observable.create(new Observable.OnSubscribe<Object>() {
             /**
              * call()方法中的参数Subscriber其实就是subscribe()方法中的观察者Observer。
@@ -73,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     subscriber.onNext("xulei" + i);
                 }
                 subscriber.onCompleted();
+                //相当于调用下面Observer的onNext与onCompleted。因为Subscriber是Observer的抽象实现类
             }
         }).subscribe(new Observer<Object>() {
             @Override
@@ -90,5 +103,25 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("rx_test", "onNext:" + o.toString());
             }
         });
+    }
+
+    /**
+     * map操作符
+     */
+    private void mapOperator() {
+        //将一组数字转换成字符串
+        Observable.just(1, 2, 3, 4, 5)
+                .map(new Func1<Integer, String>() {
+                    @Override
+                    public String call(Integer integer) {
+                        return "This is " + integer;
+                    }
+                })
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        Log.e("rx_test", s);
+                    }
+                });
     }
 }
