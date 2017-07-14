@@ -260,6 +260,10 @@ public class TransformActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * groupBy转换操作符
+     * 排序分类
+     */
     private void groupBy() {
         List<House> houseList = new ArrayList<>();
         houseList.add(new House(105.6f, 1, 200, "简单装修", "东方花园"));
@@ -270,12 +274,20 @@ public class TransformActivity extends AppCompatActivity {
         houseList.add(new House(105.6f, 4, 210, "普通装修", "东方花园"));
         houseList.add(new House(188.7f, 3, 400, "精致装修", "帝豪家园"));
         houseList.add(new House(88.6f, 2, 180, "普通装修", "东方花园"));
+        //根据小区名称进行排序
         Observable<GroupedObservable<String, House>> groupedObservableObservable = Observable
                 .from(houseList)
                 .groupBy(new Func1<House, String>() {
                     @Override
                     public String call(House house) {
                         return house.getCommunityName();
+                    }
+                });
+        Observable.concat(groupedObservableObservable)
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "groupBy：" + "小区：" + house.getCommunityName() + "，大小：" + house.getSize());
                     }
                 });
     }
