@@ -11,15 +11,17 @@ public class House {
     private int floor;
     private int price;
     private String decoration;
+    private String communityName;
 
     public House() {
     }
 
-    public House(float size, int floor, int price, String decoration) {
+    public House(float size, int floor, int price, String decoration, String communityName) {
         this.size = size;
         this.floor = floor;
         this.price = price;
         this.decoration = decoration;
+        this.communityName = communityName;
     }
 
     public float getSize() {
@@ -54,6 +56,14 @@ public class House {
         this.decoration = decoration;
     }
 
+    public String getCommunityName() {
+        return communityName;
+    }
+
+    public void setCommunityName(String communityName) {
+        this.communityName = communityName;
+    }
+
     @Override
     public String toString() {
         return "House{" +
@@ -61,6 +71,7 @@ public class House {
                 ", floor=" + floor +
                 ", price=" + price +
                 ", decoration='" + decoration + '\'' +
+                ", communityName='" + communityName + '\'' +
                 '}';
     }
 }
