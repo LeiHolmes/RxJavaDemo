@@ -13,6 +13,7 @@ import java.util.List;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -29,8 +30,9 @@ public class MainActivity extends AppCompatActivity {
         initObserverByChain();
         //异步
 
-        //转换操作符
+        //map转换操作符
         mapOperator();
+        //flatMap转换操作符
         flatmapOperator();
     }
 
@@ -116,9 +118,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * map转换操作符
+     * 一对一转换
      */
     private void mapOperator() {
-        //将一组Integer转换成String，一对一转换
+        //将一组Integer转换成String
         Observable.just(1, 2, 3, 4, 5)
                 .map(new Func1<Integer, String>() {
                     @Override
@@ -150,11 +153,27 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * flatmap转换操作符
+     * 一对多转换
      */
     private void flatmapOperator() {
-        //将Community集合转换为每一套房子，获取其名字
+        //将Community集合转换为每一套房子，获取其房子大小
+        Observable.from(communities)
+                .flatMap(new Func1<Community, Observable<House>>() {
+                    @Override
+                    public Observable<House> call(Community community) {
+                        return Observable.from(community.getHouses());
+                    }
+                }).subscribe(new Action1<House>() {
+            @Override
+            public void call(House house) {
+                Log.e("rx_test", "房子大小为：" + house.getSize());
+            }
+        });
     }
 
+    /**
+     * 添加假数据
+     */
     private void initData() {
         List<House> houses1 = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
