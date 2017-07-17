@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.TransformActivity" />
-        <activity android:name=".ui.FilterActivity"></activity>
+        <activity android:name=".ui.FilterActivity" />
+        <activity android:name=".ui.ComposeActivity"></activity>
     </application>
 
 </manifest>

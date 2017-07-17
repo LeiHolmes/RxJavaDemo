@@ -13,6 +13,7 @@ import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+
 /**
  * Description:   RxJava基本实现
  * author         xulei
@@ -110,16 +111,25 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 转换操作符点击
+     */
     @OnClick(R.id.bt_transform_operator)
     public void onTransformClick(View view) {
         startActivity(new Intent(this, TransformActivity.class));
     }
 
+    /**
+     * 过滤操作符点击
+     */
     @OnClick(R.id.bt_filter_operator)
     public void onFilterClick(View view) {
         startActivity(new Intent(this, FilterActivity.class));
     }
 
+    /**
+     * 组合操作符点击
+     */
     @OnClick(R.id.bt_compose_operator)
     public void onComposeClick(View view) {
 
