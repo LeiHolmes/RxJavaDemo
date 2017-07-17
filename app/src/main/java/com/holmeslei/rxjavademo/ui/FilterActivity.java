@@ -34,6 +34,8 @@ public class FilterActivity extends AppCompatActivity {
         elementAt();
         debounce();
         distinct();
+        first();
+        last();
     }
 
     /**
@@ -46,20 +48,21 @@ public class FilterActivity extends AppCompatActivity {
                 .flatMap(new Func1<Community, Observable<House>>() {
                     @Override
                     public Observable<House> call(Community community) {
-                        return Observable.from(community.getHouses())
-                                .filter(new Func1<House, Boolean>() {
-                                    @Override
-                                    public Boolean call(House house) {
-                                        return house.getSize() > 120f;
-                                    }
-                                });
+                        return Observable.from(community.getHouses());
                     }
-                }).subscribe(new Action1<House>() {
-            @Override
-            public void call(House house) {
-                Log.e("rx_test", "filter：大于120平的房子：" + house.getCommunityName() + "小区，大小：" + house.getSize());
-            }
-        });
+                })
+                .filter(new Func1<House, Boolean>() {
+                    @Override
+                    public Boolean call(House house) {
+                        return house.getSize() > 120f;
+                    }
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "filter：大于120平的房子：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+                    }
+                });
     }
 
     /**
@@ -92,20 +95,21 @@ public class FilterActivity extends AppCompatActivity {
                 .flatMap(new Func1<Community, Observable<House>>() {
                     @Override
                     public Observable<House> call(Community community) {
-                        return Observable.from(community.getHouses())
-                                .takeUntil(new Func1<House, Boolean>() {
-                                    @Override
-                                    public Boolean call(House house) {
-                                        return house.getPrice() > 500;
-                                    }
-                                });
+                        return Observable.from(community.getHouses());
                     }
-                }).subscribe(new Action1<House>() {
-            @Override
-            public void call(House house) {
-                Log.e("rx_test", "takeUntil：大于500时中断发射：" + house.getCommunityName() + "小区，房价：" + house.getPrice());
-            }
-        });
+                })
+                .takeUntil(new Func1<House, Boolean>() {
+                    @Override
+                    public Boolean call(House house) {
+                        return house.getPrice() > 500;
+                    }
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "takeUntil：大于500时中断发射：" + house.getCommunityName() + "小区，房价：" + house.getPrice());
+                    }
+                });
     }
 
     /**
@@ -161,7 +165,8 @@ public class FilterActivity extends AppCompatActivity {
 
     /**
      * distinct过滤操作符
-     * 去除序列中重复项
+     * distinct：只允许还没有发射过的数据通过，达到去除序列中重复项的作用
+     * distinctUntilChanged：当前数据项与前一项是否相同来去重
      */
     private void distinct() {
         //去除重复数字
@@ -178,20 +183,117 @@ public class FilterActivity extends AppCompatActivity {
                 .flatMap(new Func1<Community, Observable<House>>() {
                     @Override
                     public Observable<House> call(Community community) {
+                        return Observable.from(community.getHouses());
+                    }
+                })
+                .distinct(new Func1<House, Float>() {
+                    @Override
+                    public Float call(House house) {
+                        return house.getSize();
+                    }
+                }).
+                subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "distinct(Func1)：去重：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+                    }
+                });
+
+        //向前去重复数据
+        Observable.just(1, 2, 2, 3, 4, 2, 3, 5, 5)
+                .distinctUntilChanged()
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "distinctUntilChanged：向前去重：" + integer);
+                    }
+                });
+        //根据某属性向前去重，去除各小区名相同的房源
+        Observable.from(communities)
+                .flatMap(new Func1<Community, Observable<House>>() {
+                    @Override
+                    public Observable<House> call(Community community) {
                         return Observable.from(community.getHouses())
-                                .distinct(new Func1<House, Float>() {
+                                .distinctUntilChanged(new Func1<House, String>() {
                                     @Override
-                                    public Float call(House house) {
-                                        return house.getSize();
+                                    public String call(House house) {
+                                        return house.getCommunityName();
                                     }
                                 });
                     }
-                }).subscribe(new Action1<House>() {
-            @Override
-            public void call(House house) {
-                Log.e("rx_test", "distinct：去重：" + house.getCommunityName() + "小区，大小：" + house.getSize());
-            }
-        });
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "distinctUntilChanged(Func1)：向前去重：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+                    }
+                });
+    }
+
+    /**
+     * first过滤操作符
+     * 只发射序列中的第一个数据项
+     */
+    private void first() {
+        //发送第一个数据项
+        Observable.from(communities)
+                .first()
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "first：" + community.getCommunityName());
+                    }
+                });
+        //发送符合条件的第一个数据项：过滤第一个名为马德里春天的小区
+        Observable.from(communities)
+                .first(new Func1<Community, Boolean>() {
+                    @Override
+                    public Boolean call(Community community) {
+                        return "马德里春天".equals(community.getCommunityName());
+                    }
+                })
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "first(Func1)：" + community.getCommunityName());
+                    }
+                });
+    }
+
+    /**
+     * last过滤操作符
+     * 只发射序列中的最后一个数据项。
+     */
+    private void last() {
+        //发送最后一个数据项
+        Observable.from(communities)
+                .last()
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "last：" + community.getCommunityName());
+                    }
+                });
+        //发送符合条件的最后一个数据项：过滤最后一个小区名为马德里春天的房源
+        Observable.from(communities)
+                .flatMap(new Func1<Community, Observable<House>>() {
+                    @Override
+                    public Observable<House> call(Community community) {
+                        return Observable.from(community.getHouses());
+                    }
+                })
+                .last(new Func1<House, Boolean>() {
+                    @Override
+                    public Boolean call(House house) {
+                        return "马德里春天".equals(house.getCommunityName());
+                    }
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "last：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+                    }
+                });
     }
 
     /**
