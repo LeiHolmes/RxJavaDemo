@@ -29,8 +29,17 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter);
         initData();
         filter();
+        take();
+        skip();
+        elementAt();
+        debounce();
+        distinct();
     }
 
+    /**
+     * filter过滤操作符
+     * 过滤序列中不想要的值，返回满足条件的值
+     */
     private void filter() {
         //结合flatmap，过滤出各小区中房源大小大于120平的房子
         Observable.from(communities)
@@ -49,6 +58,138 @@ public class FilterActivity extends AppCompatActivity {
             @Override
             public void call(House house) {
                 Log.e("rx_test", "filter：大于120平的房子：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+            }
+        });
+    }
+
+    /**
+     * take过滤转换符
+     * take：获取序列前n个元素并发射
+     * takeLast：获取序列后n个元素并发射
+     * takeUntil：通过Func1中的call方法来判断是否需要终止当前Observable发射数据
+     */
+    private void take() {
+        //take：获取前两个小区名
+        Observable.from(communities)
+                .take(2)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "take：前两个小区：" + community.getCommunityName());
+                    }
+                });
+        //takeLast：获取后两个小区名
+        Observable.from(communities)
+                .takeLast(2)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "takeLast：后两个小区：" + community.getCommunityName());
+                    }
+                });
+        //takeUntil：与flatmap结合过滤直到房价大于500时中断当前小区Observable发射House
+        Observable.from(communities)
+                .flatMap(new Func1<Community, Observable<House>>() {
+                    @Override
+                    public Observable<House> call(Community community) {
+                        return Observable.from(community.getHouses())
+                                .takeUntil(new Func1<House, Boolean>() {
+                                    @Override
+                                    public Boolean call(House house) {
+                                        return house.getPrice() > 500;
+                                    }
+                                });
+                    }
+                }).subscribe(new Action1<House>() {
+            @Override
+            public void call(House house) {
+                Log.e("rx_test", "takeUntil：大于500时中断发射：" + house.getCommunityName() + "小区，房价：" + house.getPrice());
+            }
+        });
+    }
+
+    /**
+     * skip过滤操作符
+     * skip：忽略发射Observable的前n项数据
+     * skipLast：忽略发射Observable的后n项数据
+     */
+    private void skip() {
+        //忽略前两个小区数据
+        Observable.from(communities)
+                .skip(2)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "skip：忽略前两个小区：" + community.getCommunityName());
+                    }
+                });
+        //忽略后两个小区数据
+        Observable.from(communities)
+                .skipLast(2)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "skip：忽略后两个小区：" + community.getCommunityName());
+                    }
+                });
+    }
+
+    /**
+     * elementAt过滤操作符
+     * 获取Observable的第n项数据并当做唯一数据发射
+     */
+    private void elementAt() {
+        Observable.from(communities)
+                .elementAt(1)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "elementAt：第二个小区：" + community.getCommunityName());
+                    }
+                });
+    }
+
+    /**
+     * debounce过滤操作符
+     * debounce(long, TimeUnit)：过滤由Observable发射的速率过快的数据
+     * debounce(Func1)：根据Func1的call方法中的函数来过滤
+     */
+    private void debounce() {
+        //Todo debounce(long, TimeUnit)：可结合RxBinding(Jake Wharton使用RxJava封装的Android UI组件)使用，防止button重复点击。
+        //Todo Func1中的中的call方法返回了一个临时的Observable，如果原始的Observable在发射一个新的数据时，上一个数据根据Func1的call方法生成的临时Observable还没结束，那么上一个数据就会被过滤掉
+    }
+
+    /**
+     * distinct过滤操作符
+     * 去除序列中重复项
+     */
+    private void distinct() {
+        //去除重复数字
+        Observable.just(1, 2, 2, 3, 4, 5, 6, 6, 6, 7)
+                .distinct()
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "distinct：去重：" + integer);
+                    }
+                });
+        //根据某属性去重，去除各小区大小相同的房源
+        Observable.from(communities)
+                .flatMap(new Func1<Community, Observable<House>>() {
+                    @Override
+                    public Observable<House> call(Community community) {
+                        return Observable.from(community.getHouses())
+                                .distinct(new Func1<House, Float>() {
+                                    @Override
+                                    public Float call(House house) {
+                                        return house.getSize();
+                                    }
+                                });
+                    }
+                }).subscribe(new Action1<House>() {
+            @Override
+            public void call(House house) {
+                Log.e("rx_test", "distinct：去重：" + house.getCommunityName() + "小区，大小：" + house.getSize());
             }
         });
     }
