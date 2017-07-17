@@ -18,13 +18,14 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.observables.GroupedObservable;
+
 /**
  * Description:   RxJava转换操作符
  * author         xulei
  * Date           2017/7/14 17:37
  */
 public class TransformActivity extends AppCompatActivity {
-    private Community[] communities;
+    private List<Community> communities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,6 +218,7 @@ public class TransformActivity extends AppCompatActivity {
      * 添加假数据
      */
     private void initData() {
+        communities = new ArrayList<>();
         List<House> houses1 = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             if (i % 2 == 0) {
@@ -225,6 +227,7 @@ public class TransformActivity extends AppCompatActivity {
                 houses1.add(new House(144.8f, i, 520, "豪华装修", "东方花园"));
             }
         }
+        communities.add(new Community("东方花园", houses1));
 
         List<House> houses2 = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -234,6 +237,7 @@ public class TransformActivity extends AppCompatActivity {
                 houses2.add(new House(123.4f, i, 321, "精致装修", "马德里春天"));
             }
         }
+        communities.add(new Community("马德里春天", houses2));
 
         List<House> houses3 = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -243,8 +247,6 @@ public class TransformActivity extends AppCompatActivity {
                 houses3.add(new House(56.4f, i, 101, "普通装修", "帝豪家园"));
             }
         }
-
-        communities = new Community[]{new Community("东方花园", houses1),
-                new Community("马德里春天", houses2), new Community("帝豪家园", houses3)};
+        communities.add(new Community("帝豪家园", houses3));
     }
 }
