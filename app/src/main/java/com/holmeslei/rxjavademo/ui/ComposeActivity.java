@@ -34,7 +34,9 @@ public class ComposeActivity extends AppCompatActivity {
         merge();
         startWith();
         concat();
-        zip(); 
+        zip();
+        combineLatest();
+        switchOnNext();
     }
 
     /**
@@ -112,7 +114,7 @@ public class ComposeActivity extends AppCompatActivity {
 
     /**
      * zip(Observable, Observable, Func2)组合操作符
-     * 合并两个Observable发射的数据项，根据Func2函数生成一个新的值并发射出去
+     * 用于合并两个Observable发射的数据项，根据Func2函数生成一个新的值并发射出去
      * 若其中一个Observable发射完毕或出现异常，另一个也随之停止发射
      */
     private void zip() {
@@ -130,6 +132,51 @@ public class ComposeActivity extends AppCompatActivity {
                 //由打印结果可看出numberSequence观测序列最后的6并没有发射出来，由于wordSequence观测序列已发射完所有数据，所以组合序列也停止发射数据了
             }
         });
+    }
+
+    /**
+     * combineLatest(Observable, Observable, Func2)组合操作符
+     * 用于将两个Observale最近发射的数据以Func2函数的规则进行组合并发射
+     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
+     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
+     * 发射结果： A0 B0 C0 C1 D1 E1 E2 F2 F3 G3 H3 H4 I4
+     * <p>
+     * 若更换两Observale顺序
+     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
+     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
+     * 发射结果： 0A 0B 0C 1C 1D 2D 2E 2F 3F 3G 3H 4H 4I
+     */
+    private void combineLatest() {
+        //引用merge的例子
+        final String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I"};
+        Observable<String> wordSequence = Observable.interval(300, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, String>() {
+                    @Override
+                    public String call(Long position) {
+                        return words[position.intValue()];
+                    }
+                })
+                .take(words.length);
+        Observable<Long> numberSequence = Observable.interval(500, TimeUnit.MILLISECONDS).take(5);
+        Observable.combineLatest(wordSequence, numberSequence, new Func2<String, Long, String>() {
+            @Override
+            public String call(String s, Long aLong) {
+                return s + aLong;
+            }
+        }).subscribe(new Action1<Serializable>() {
+            @Override
+            public void call(Serializable serializable) {
+                Log.e("rx_test", "combineLatest：" + serializable.toString());
+            }
+        });
+    }
+
+    /**
+     * switchOnNext(Observable<? extends Observable<? extends T>>
+     * 用来将一个发射多个小Observable的源Observable转化为一个Observable，然后发射这个多个小Observable所发射的数据
+     */
+    private void switchOnNext() {
+        //
     }
 
     /**
