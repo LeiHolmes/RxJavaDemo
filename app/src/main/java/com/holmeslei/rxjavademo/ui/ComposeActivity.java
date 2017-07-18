@@ -189,8 +189,6 @@ public class ComposeActivity extends AppCompatActivity {
      * Func2：接收从ObservableA和ObservableB发射出来的数据，并将这两个数据组合后返回。
      */
     private void join() {
-        final String[] words = new String[]{"A", "B", "C", "D", "E"};
-
         //把第一个数据源A作为基座窗口，他根据自己的节奏不断发射数据元素，
         //第二个数据源B，每发射一个数据，我们都把它和第一个数据源A中已经发射的数据进行一对一匹配；
         //举例来说，如果某一时刻B发射了一个数据“B”,此时A已经发射了0，1，2，3共四个数据，
