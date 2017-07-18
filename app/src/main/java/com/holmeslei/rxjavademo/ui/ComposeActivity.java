@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 /**
  * Description:   组合转换符
@@ -33,6 +34,7 @@ public class ComposeActivity extends AppCompatActivity {
         merge();
         startWith();
         concat();
+        zip();
     }
 
     /**
@@ -99,7 +101,6 @@ public class ComposeActivity extends AppCompatActivity {
         Observable<String> wordSequence = Observable.just("A", "B", "C", "D", "E");
         Observable<Integer> numberSequence = Observable.just(1, 2, 3, 4, 5);
         Observable<String> nameSequence = Observable.just("Sherlock", "Richard", "Xu");
-        //concat合并
         Observable.concat(wordSequence, numberSequence, nameSequence)
                 .subscribe(new Action1<Serializable>() {
                     @Override
@@ -107,6 +108,28 @@ public class ComposeActivity extends AppCompatActivity {
                         Log.e("rx_test", "concat：" + serializable.toString());
                     }
                 });
+    }
+
+    /**
+     * zip(Observable, Observable, Func2)组合操作符
+     * 合并两个Observable发射的数据项，根据Func2函数生成一个新的值并发射出去
+     * 若其中一个Observable发射完毕或出现异常，另一个也随之停止发射
+     */
+    private void zip() {
+        Observable<String> wordSequence = Observable.just("A", "B", "C", "D", "E");
+        Observable<Integer> numberSequence = Observable.just(1, 2, 3, 4, 5, 6);
+        Observable.zip(wordSequence, numberSequence, new Func2<String, Integer, String>() {
+            @Override
+            public String call(String s, Integer integer) {
+                return s + integer;
+            }
+        }).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.e("rx_test", "zip：" + s);
+                //由打印结果可看出numberSequence观测序列最后的6并没有发射出来，由于wordSequence观测序列已发射完所有数据，所以组合序列也停止发射数据了
+            }
+        });
     }
 
     /**
