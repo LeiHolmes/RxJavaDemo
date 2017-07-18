@@ -37,6 +37,7 @@ public class ComposeActivity extends AppCompatActivity {
         zip();
         combineLatest();
         switchOnNext();
+        join();
     }
 
     /**
@@ -176,7 +177,17 @@ public class ComposeActivity extends AppCompatActivity {
      * 用来将一个发射多个小Observable的源Observable转化为一个Observable，然后发射这个多个小Observable所发射的数据
      */
     private void switchOnNext() {
-        //
+        //若小Observable正在发射数据时，源Observable又发射了新的小Observable，
+        //则前一个小Observable还未发射的数据会被抛弃，直接发射新的小Observable所发射的数据
+        // TODO: 2017/7/18 添加例子 
+    }
+
+    /**
+     * join(Observable, Func1, Func1, Func2)
+     * 
+     */
+    private void join() {
+        
     }
 
     /**
