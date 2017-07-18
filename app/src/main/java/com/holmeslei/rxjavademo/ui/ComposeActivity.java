@@ -34,7 +34,7 @@ public class ComposeActivity extends AppCompatActivity {
         merge();
         startWith();
         concat();
-        zip();
+        zip(); 
     }
 
     /**
