@@ -24,18 +24,16 @@ import rx.functions.Func2;
  * Date           2017/7/17 16:21
  */
 public class ComposeActivity extends AppCompatActivity {
-    private List<Community> communities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose);
-        initData();
-        merge();
+//        merge();
         startWith();
         concat();
         zip();
-        combineLatest();
+//        combineLatest();
         switchOnNext();
         join();
     }
@@ -173,7 +171,7 @@ public class ComposeActivity extends AppCompatActivity {
     }
 
     /**
-     * switchOnNext(Observable<? extends Observable<? extends T>>
+     * switchOnNext(Observable<? extends Observable<? extends T>>组合操作符
      * 用来将一个发射多个小Observable的源Observable转化为一个Observable，然后发射这个多个小Observable所发射的数据
      */
     private void switchOnNext() {
@@ -183,46 +181,65 @@ public class ComposeActivity extends AppCompatActivity {
     }
 
     /**
-     * join(Observable, Func1, Func1, Func2)
-     * 
+     * join(Observable, Func1, Func1, Func2)组合操作符
+     * 用于ObservableA与ObservableB发射的数据进行排列组合
+     * Observable：ObservableB
+     * Func1：决定ObsrvableA发射出来的数据的有效期
+     * Func1：决定ObsrvableB发射出来的数据的有效期
+     * Func2：接收从ObservableA和ObservableB发射出来的数据，并将这两个数据组合后返回。
      */
     private void join() {
-        
-    }
+        final String[] words = new String[]{"A", "B", "C", "D", "E"};
 
-    /**
-     * 添加假数据
-     */
-    private void initData() {
-        communities = new ArrayList<>();
-        List<House> houses1 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                houses1.add(new House(105.6f, i, 200, "简单装修", "东方花园"));
-            } else {
-                houses1.add(new House(144.8f, i, 520, "豪华装修", "东方花园"));
-            }
-        }
-        communities.add(new Community("东方花园", houses1));
+        //把第一个数据源A作为基座窗口，他根据自己的节奏不断发射数据元素，
+        //第二个数据源B，每发射一个数据，我们都把它和第一个数据源A中已经发射的数据进行一对一匹配；
+        //举例来说，如果某一时刻B发射了一个数据“B”,此时A已经发射了0，1，2，3共四个数据，
+        //那么我们的合并操作就会把“B”依次与0,1,2,3配对，得到四组数据： [0, B][1, B] [2, B] [3, B]
 
-        List<House> houses2 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                houses2.add(new House(88.6f, i, 166, "中等装修", "马德里春天"));
-            } else {
-                houses2.add(new House(123.4f, i, 321, "精致装修", "马德里春天"));
-            }
-        }
-        communities.add(new Community("马德里春天", houses2));
+        //产生0，5，10，15，20，25的序列
+        Observable<Long> observableA = Observable.interval(1000, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, Long>() {
+                    @Override
+                    public Long call(Long aLong) {
+                        return aLong * 5;
+                    }
+                }).take(5);
 
-        List<House> houses3 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                houses3.add(new House(188.7f, i, 724, "豪华装修", "帝豪家园"));
-            } else {
-                houses3.add(new House(56.4f, i, 101, "普通装修", "帝豪家园"));
+        //产生0，10，20，30,40,50的序列,延时500ms发射
+        Observable<Long> observableB = Observable.interval(500, 1000, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, Long>() {
+                    @Override
+                    public Long call(Long aLong) {
+                        return aLong * 10;
+                    }
+                }).take(5);
+        observableA.join(observableB,
+                new Func1<Long, Observable<Long>>() {
+                    @Override
+                    public Observable<Long> call(Long aLong) {
+                        //使ObservableA延迟600毫秒执行
+                        return Observable.just(aLong).delay(600, TimeUnit.MILLISECONDS);
+                    }
+                },
+                new Func1<Long, Observable<Long>>() {
+                    @Override
+                    public Observable<Long> call(Long aLong) {
+                        //使ObservableB延迟600毫秒执行
+                        return Observable.just(aLong).delay(600, TimeUnit.MILLISECONDS);
+                    }
+                },
+                new Func2<Long, Long, String>() {
+                    @Override
+                    public String call(Long aLong, Long aLong2) {
+                        return "ObservableA:" + aLong + "-------ObservableB:" + aLong2;
+                    }
+                }
+        ).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.e("rx_test", "join：" + s);
             }
-        }
-        communities.add(new Community("帝豪家园", houses3));
+        });
+
     }
 }
