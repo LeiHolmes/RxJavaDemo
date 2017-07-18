@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.holmeslei.rxjavademo.R;
+import com.holmeslei.rxjavademo.model.Community;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -132,6 +133,6 @@ public class BaseActivity extends AppCompatActivity {
      */
     @OnClick(R.id.bt_compose_operator)
     public void onComposeClick(View view) {
-
+        startActivity(new Intent(this, ComposeActivity.class));
     }
 }
