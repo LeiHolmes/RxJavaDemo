@@ -4,20 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.Range;
 import android.view.View;
 
 import com.holmeslei.rxjavademo.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 
 /**
  * Description:   RxJava创建操作符
@@ -36,6 +39,10 @@ public class CreatActivity extends AppCompatActivity {
         just();
         from();
         range();
+        defer();
+        interval();
+        timer();
+        delay();
     }
 
     /**
@@ -128,7 +135,7 @@ public class CreatActivity extends AppCompatActivity {
         Observable.just(1, 2, 3, 4, 5, 6).subscribe(new Action1<Integer>() {
             @Override
             public void call(Integer integer) {
-                Log.e("rx_test", "just:数字" + integer);
+                Log.e("rx_test", "just:数字：" + integer);
                 //数字或者字符串都是单个发射多次
             }
         });
@@ -140,7 +147,7 @@ public class CreatActivity extends AppCompatActivity {
         Observable.just(stringList).subscribe(new Action1<List<String>>() {
             @Override
             public void call(List<String> strings) {
-                Log.e("rx_test", "just:集合" + strings.toString());
+                Log.e("rx_test", "just:集合：" + strings.toString());
                 //集合或数组是直接发射集合整体，不会拆分
             }
         });
@@ -159,7 +166,7 @@ public class CreatActivity extends AppCompatActivity {
         Observable.from(stringList).subscribe(new Action1<String>() {
             @Override
             public void call(String s) {
-                Log.e("rx_test", "from" + s);
+                Log.e("rx_test", "from：" + s);
             }
         });
     }
@@ -173,9 +180,99 @@ public class CreatActivity extends AppCompatActivity {
         Observable.range(5, 5).subscribe(new Action1<Integer>() {
             @Override
             public void call(Integer integer) {
-                Log.e("rx_test", "range" + integer);
+                Log.e("rx_test", "range：" + integer);
             }
         });
+    }
+
+    /**
+     * defer创建操作符
+     * 只有当Subscriber订阅的时候才会创建一个新的Observable
+     * 可确保Observable中的数据都是最新的
+     */
+    private void defer() {
+        //这里与just对比来观察有何不同
+        Action1<String> action1 = new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.e("rx_test", s);
+            }
+        };
+
+        //defer
+        Observable<String> deferObservable = Observable.defer(new Func0<Observable<String>>() {
+            @Override
+            public Observable<String> call() {
+                Object o = new Object();
+                return Observable.just("defer：hashCode：" + o.hashCode());
+            }
+        });
+        deferObservable.subscribe(action1);
+        deferObservable.subscribe(action1);
+        deferObservable.subscribe(action1);
+
+        //just
+        Observable<String> justObservable = Observable.just("just：hashCode：" + new Object().hashCode());
+        justObservable.subscribe(action1);
+        justObservable.subscribe(action1);
+        justObservable.subscribe(action1);
+
+        //由输出结果可看出
+        //deferObservable每次订阅都生成的新的Observable来发射数据，
+        //而just只在初始化Observable的时候生成一次
+    }
+
+    /**
+     * interval创建操作符
+     * 创建一个Observabel并每隔一段时间发射一个由0开始增加的数字
+     * 周期发射
+     * 注意：此Observabel是运行在新的线程，所以更新UI需要在主线程中订阅
+     */
+    private void interval() {
+        //每隔100ms发射一个数字,从0自增
+        Observable.interval(100, TimeUnit.MILLISECONDS) //单位为毫秒
+                .observeOn(AndroidSchedulers.mainThread())
+                .take(5) //发射5次，take为过滤操作符，详细参看FilterActivity
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        Log.e("rx_test", "interval：" + aLong);
+                    }
+                });
+
+    }
+
+    /**
+     * timer创建操作符
+     * 创建一个Observable并隔一段时间后发射一个特殊的值
+     * 仅发射一次
+     * 注意：此Observabel是运行在新的线程，所以更新UI需要在主线程中订阅
+     */
+    private void timer() {
+        //隔1s后发射一个数字
+        Observable.timer(1, TimeUnit.SECONDS) //单位为秒
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        Log.e("rx_test", "timer：" + aLong);
+                    }
+                });
+    }
+
+    /**
+     * delay创建操作符
+     * 用于在事件流中，可延迟发送事件流中的某一次发送
+     */
+    private void delay() {
+        Observable.just(1, 2, 3)
+                .delay(2, TimeUnit.SECONDS)
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "delay：" + integer);
+                    }
+                });
     }
 
     /**
