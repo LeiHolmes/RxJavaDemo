@@ -10,10 +10,14 @@ import com.holmeslei.rxjavademo.model.House;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Scheduler;
+import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Description:   RxJava过滤操作符
@@ -155,12 +159,36 @@ public class FilterActivity extends AppCompatActivity {
 
     /**
      * debounce过滤操作符
-     * debounce(long, TimeUnit)：过滤由Observable发射的速率过快的数据
+     * debounce(long, TimeUnit)：过滤由Observable发射的速率过快的数据，起到限流的作用
      * debounce(Func1)：根据Func1的call方法中的函数来过滤
      */
     private void debounce() {
-        //Todo debounce(long, TimeUnit)：可结合RxBinding(Jake Wharton使用RxJava封装的Android UI组件)使用，防止button重复点击。
-        //Todo Func1中的中的call方法返回了一个临时的Observable，如果原始的Observable在发射一个新的数据时，上一个数据根据Func1的call方法生成的临时Observable还没结束，那么上一个数据就会被过滤掉
+        //debounce(long, TimeUnit)：可结合RxBinding(Jake Wharton使用RxJava封装的Android UI组件)使用，防止button重复点击。
+        Observable.create(new Observable.OnSubscribe<Integer>() {
+            @Override
+            public void call(Subscriber<? super Integer> subscriber) {
+                try {
+                    for (int i = 1; i < 10; i++) {
+                        subscriber.onNext(i);
+                        Thread.sleep(i * 100); //分别延时100，200，300，400，500......900ms发射数据
+                    }
+                    subscriber.onCompleted();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).subscribeOn(Schedulers.newThread())
+                .debounce(400, TimeUnit.MILLISECONDS)
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "debounce：" + integer);
+                        //由输出结果可以看出由于设定限流时间为400ms，所以1-4并没有被发射而是被过滤了
+                    }
+                });
+        
+        //debounce(Func1)：Func1中的中的call方法返回了一个临时的Observable，如果原始的Observable在发射一个新的数据时，
+        //上一个数据根据Func1的call方法生成的临时Observable还没结束，那么上一个数据就会被过滤掉
     }
 
     /**
