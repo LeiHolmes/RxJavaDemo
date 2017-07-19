@@ -4,38 +4,44 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Range;
 import android.view.View;
 
 import com.holmeslei.rxjavademo.R;
-import com.holmeslei.rxjavademo.model.Community;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+import rx.functions.Action1;
 
 /**
- * Description:   RxJava基本实现
+ * Description:   RxJava创建操作符
  * author         xulei
  * Date           2017/7/14 17:36
  */
-public class BaseActivity extends AppCompatActivity {
+public class CreatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base);
+        setContentView(R.layout.activity_create);
         ButterKnife.bind(this);
-        //基本操作
-        initObserver();
-        initObserverByChain();
+        create();
+        createByChain();
+        just();
+        from();
+        range();
     }
 
     /**
-     * 基本操作
+     * create创建操作符
      */
-    private void initObserver() {
+    private void create() {
         //step1 创建观察者Observer,或者Action1：简洁就一个回调call()
         Observer observer = new Observer() {
             @Override
@@ -78,9 +84,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 链式编程
+     * create创建操作符链式编程
      */
-    private void initObserverByChain() {
+    private void createByChain() {
         Observable.create(new Observable.OnSubscribe<Object>() {
             /**
              * call()方法中的参数Subscriber其实就是subscribe()方法中的观察者Observer。
@@ -110,10 +116,70 @@ public class BaseActivity extends AppCompatActivity {
                 Log.e("rx_test", "onNext:" + o.toString());
             }
         });
+        //.subscribe()中的参数也可用ActionX替代，好处是只有一个回调方法call()。
     }
 
     /**
-     * 转换操作符点击
+     * just创建操作符
+     * 将某个对象转化为Observable对象，并且将其发射出去
+     * 可为一个或多个数字，字符串。也可为集合，数组，Iterate对象等。
+     */
+    private void just() {
+        Observable.just(1, 2, 3, 4, 5, 6).subscribe(new Action1<Integer>() {
+            @Override
+            public void call(Integer integer) {
+                Log.e("rx_test", "just:数字" + integer);
+                //数字或者字符串都是单个发射多次
+            }
+        });
+
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Hello");
+        stringList.add("Ha");
+        stringList.add("RxJava");
+        Observable.just(stringList).subscribe(new Action1<List<String>>() {
+            @Override
+            public void call(List<String> strings) {
+                Log.e("rx_test", "just:集合" + strings.toString());
+                //集合或数组是直接发射集合整体，不会拆分
+            }
+        });
+    }
+
+    /**
+     * from创建操作符
+     * 将某个对象转化为Observable对象，并且将其发射出去
+     * 不同于just，他接收集合或数组，可将集合数组遍历之后拆分发送
+     */
+    private void from() {
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Hello");
+        stringList.add("Ha");
+        stringList.add("RxJava");
+        Observable.from(stringList).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.e("rx_test", "from" + s);
+            }
+        });
+    }
+
+    /**
+     * range(int start, int count)创建操作符
+     * 根据初始值start，与数量count，发射count次以start为基数依次增加的值
+     */
+    private void range() {
+        //输出结果 5，6，7，8，9
+        Observable.range(5, 5).subscribe(new Action1<Integer>() {
+            @Override
+            public void call(Integer integer) {
+                Log.e("rx_test", "range" + integer);
+            }
+        });
+    }
+
+    /**
+     * 转换操作符跳转
      */
     @OnClick(R.id.bt_transform_operator)
     public void onTransformClick(View view) {
@@ -121,7 +187,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 过滤操作符点击
+     * 过滤操作符跳转
      */
     @OnClick(R.id.bt_filter_operator)
     public void onFilterClick(View view) {
@@ -129,7 +195,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 组合操作符点击
+     * 组合操作符跳转
      */
     @OnClick(R.id.bt_compose_operator)
     public void onComposeClick(View view) {
