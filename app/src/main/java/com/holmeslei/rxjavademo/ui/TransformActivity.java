@@ -35,9 +35,9 @@ public class TransformActivity extends AppCompatActivity {
         //转换操作符
         map();
         flatMap();
-//        concatMap();
-//        flatMapIterable();
-//        switchMap();
+        concatMap();
+        flatMapIterable();
+        switchMap();
         scan();
         groupBy();
     }
