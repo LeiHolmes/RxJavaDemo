@@ -210,8 +210,7 @@ public class TransformActivity extends AppCompatActivity {
                 .subscribe(new Action1<House>() {
                     @Override
                     public void call(House house) {
-//                        Log.e("rx_test", "groupBy：" + "小区：" + house.getCommunityName() + "，大小：" + house.getSize());
-                        Log.e("rx_test", "groupBy：" + house.toString());
+                        Log.e("rx_test", "groupBy：" + "小区：" + house.getCommunityName() + "，价格：" + house.getPrice());
                     }
                 });
     }
