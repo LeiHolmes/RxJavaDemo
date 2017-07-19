@@ -184,7 +184,8 @@ public class TransformActivity extends AppCompatActivity {
 
     /**
      * groupBy转换操作符
-     * 排序分类
+     * 分类
+     * 将原始Observable发射的数据按照key来拆分成一些小的Observable，然后这些小的Observable分别发射其所包含的的数据
      */
     private void groupBy() {
         List<House> houseList = new ArrayList<>();
@@ -196,7 +197,7 @@ public class TransformActivity extends AppCompatActivity {
         houseList.add(new House(105.6f, 4, 210, "普通装修", "东方花园"));
         houseList.add(new House(188.7f, 3, 400, "精致装修", "帝豪家园"));
         houseList.add(new House(88.6f, 2, 180, "普通装修", "东方花园"));
-        //根据小区名称进行排序
+        //根据小区名称进行分类
         Observable<GroupedObservable<String, House>> groupedObservableObservable = Observable
                 .from(houseList)
                 .groupBy(new Func1<House, String>() {
@@ -205,11 +206,12 @@ public class TransformActivity extends AppCompatActivity {
                         return house.getCommunityName();
                     }
                 });
-        Observable.concat(groupedObservableObservable)
+        Observable.concat(groupedObservableObservable) //concat组合操作符，将多个Observable有序组合并发送，详见ComposeActivity
                 .subscribe(new Action1<House>() {
                     @Override
                     public void call(House house) {
-                        Log.e("rx_test", "groupBy：" + "小区：" + house.getCommunityName() + "，大小：" + house.getSize());
+//                        Log.e("rx_test", "groupBy：" + "小区：" + house.getCommunityName() + "，大小：" + house.getSize());
+                        Log.e("rx_test", "groupBy：" + house.toString());
                     }
                 });
     }
