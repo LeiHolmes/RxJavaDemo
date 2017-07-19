@@ -20,7 +20,6 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func0;
-import rx.schedulers.Schedulers;
 
 /**
  * Description:   RxJava创建操作符
@@ -43,6 +42,11 @@ public class CreatActivity extends AppCompatActivity {
         interval();
         timer();
         delay();
+        repeat();
+        //不常用
+        empty();
+        never();
+        error();
     }
 
     /**
@@ -273,6 +277,92 @@ public class CreatActivity extends AppCompatActivity {
                         Log.e("rx_test", "delay：" + integer);
                     }
                 });
+    }
+
+    /**
+     * repeat创建操作符
+     * 会将一个Observable对象重复发射，参数是发射的次数
+     */
+    private void repeat() {
+        Observable.just("Sherlock").repeat(5)
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        Log.e("rx_test", "repeat：" + s);
+                    }
+                });
+    }
+
+    /**
+     * empty创建操作符
+     * 创建一个Observable不发射任何数据、而是立即调用onCompleted方法终止
+     */
+    private void empty() {
+        Observable<String> emptyObservable = Observable.empty();
+        emptyObservable.subscribe(new Subscriber<String>() {
+            @Override
+            public void onCompleted() {
+                Log.e("rx_test", "empty：onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(String s) {
+                Log.e("rx_test", "empty：onNext");
+            }
+        });
+    }
+
+    /**
+     * never创建操作符
+     * 创建一个Observable不发射任何数据、也不给订阅ta的Observer发出任何通知
+     */
+    private void never() {
+        Observable<String> never = Observable.never();
+        never.subscribe(new Subscriber<String>() {
+            @Override
+            public void onCompleted() {
+                Log.e("rx_test", "never：onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e("rx_test", "never：onError");
+            }
+
+            @Override
+            public void onNext(String s) {
+                Log.e("rx_test", "never：onNext");
+            }
+        });
+    }
+
+    /**
+     * error创建操作符
+     * 创建一个Observable，当有Observer订阅时直接调用Observer的onError方法终止
+     */
+    private void error() {
+        Observable<String> error = Observable.error(new Throwable("Observable.error"));
+        error.subscribe(new Subscriber<String>() {
+            @Override
+            public void onCompleted() {
+                Log.e("rx_test", "error：onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e("rx_test", "error：onError");
+            }
+
+            @Override
+            public void onNext(String s) {
+                Log.e("rx_test", "error：onNext");
+            }
+        });
     }
 
     /**
