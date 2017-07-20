@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.holmeslei.rxjavademo.R;
 
@@ -20,9 +21,11 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 
 /**
  * Description:   RxJava创建操作符
+ * 整体学习顺序CreatActivity-->TransformActivity-->FilterActivity-->ComposeActivity
  * author         xulei
  * Date           2017/7/14 17:36
  */
@@ -47,6 +50,8 @@ public class CreatActivity extends AppCompatActivity {
         empty();
         never();
         error();
+        //线程调度Scheduler，用来指定被观察者与订阅者运行的线程
+        scheduler();
     }
 
     /**
@@ -363,6 +368,31 @@ public class CreatActivity extends AppCompatActivity {
                 Log.e("rx_test", "error：onNext");
             }
         });
+    }
+
+    /**
+     * subscribeOn：指定被观察者运行的线程
+     * observeOn：指定订阅者运行的线程
+     * Schedulers种类：
+     * Schedulers.immediate( )：        在当前线程立即开始执行，不指定线程，为Scheduler默认设置
+     * Schedulers.io( )：               与newThread类似，专用I/O操作，内部线程池无数量上线，效率优于newThread
+     * Schedulers.newThread( )：        总是启用新线程，并在新线程中执行的Scheduler
+     * Schedulers.computation( )：      CPU密集型计算所使用的Scheduler，使用固定线程池，不可使用其进行I/O操作，影响效率
+     * Schedulers.from(executor)：     使用指定的Executor作为Scheduler
+     * Schedulers.trampoline( )：       当其它排队的任务完成后，在当前线程排队开始执行的Scheduler
+     * AndroidSchedulers.mainThread()：Android特有的，在UI线程执行
+     */
+    private void scheduler() {
+        //延时3S更新UI
+        Observable.timer(3, TimeUnit.SECONDS) //单位为秒
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        ((TextView) findViewById(R.id.tv_create_text)).setText("创建操作符更新数据");
+                    }
+                });
     }
 
     /**
