@@ -18,7 +18,8 @@
         </activity>
         <activity android:name=".ui.TransformActivity" />
         <activity android:name=".ui.FilterActivity" />
-        <activity android:name=".ui.ComposeActivity"></activity>
+        <activity android:name=".ui.ComposeActivity" />
+        <activity android:name=".ui.PracticeActivity"></activity>
     </application>
 
 </manifest>

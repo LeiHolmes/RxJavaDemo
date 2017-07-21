@@ -418,4 +418,20 @@ public class CreatActivity extends AppCompatActivity {
     public void onComposeClick(View view) {
         startActivity(new Intent(this, ComposeActivity.class));
     }
+
+    /**
+     * 实践练习1跳转
+     */
+    @OnClick(R.id.bt_practice1)
+    public void onPractice1Click(View view) {
+        startActivity(new Intent(this, PracticeActivity.class));
+    }
+
+    /**
+     * 实践练习2跳转
+     */
+    @OnClick(R.id.bt_practice2)
+    public void onPractice2Click(View view) {
+//        startActivity(new Intent(this, PracticeActivity.class));
+    }
 }

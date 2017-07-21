@@ -22,6 +22,7 @@
         android:layout_below="@+id/tv_create_text"
         android:layout_centerHorizontal="true"
         android:layout_margin="5dp"
+        android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <Button
@@ -41,5 +42,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="组合操作符" />
+
+        <Button
+            android:id="@+id/bt_practice1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="实践出真知(一)" />
+
+        <Button
+            android:id="@+id/bt_practice2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="实践出真知(二)" />
     </LinearLayout>
 </RelativeLayout>
