@@ -29,24 +29,28 @@
             android:id="@+id/bt_transform_operator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onViewClicked"
             android:text="转换操作符" />
 
         <Button
             android:id="@+id/bt_filter_operator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onViewClicked"
             android:text="过滤操作符" />
 
         <Button
             android:id="@+id/bt_compose_operator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onViewClicked"
             android:text="组合操作符" />
 
         <Button
             android:id="@+id/bt_practice1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onViewClicked"
             android:text="实践出真知" />
     </LinearLayout>
 </RelativeLayout>

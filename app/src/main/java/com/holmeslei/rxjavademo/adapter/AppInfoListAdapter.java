@@ -13,9 +13,6 @@ import com.holmeslei.rxjavademo.model.AppInfo;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 /**
  * Description:
  * author         xulei
@@ -49,14 +46,13 @@ public class AppInfoListAdapter extends RecyclerView.Adapter<AppInfoListAdapter.
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.item_iv_head)
         ImageView ivHead;
-        @BindView(R.id.item_iv_app_name)
         TextView tvAppName;
 
         MyViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            ivHead = (ImageView) itemView.findViewById(R.id.item_iv_head);
+            tvAppName = (TextView) itemView.findViewById(R.id.item_iv_app_name);
         }
     }
 }
