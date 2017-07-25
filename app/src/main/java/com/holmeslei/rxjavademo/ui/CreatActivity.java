@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -33,6 +35,7 @@ public class CreatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
+        ButterKnife.bind(this);
         create();
         createByChain();
         just();
@@ -392,6 +395,7 @@ public class CreatActivity extends AppCompatActivity {
                 });
     }
 
+    @OnClick({R.id.bt_transform_operator, R.id.bt_filter_operator, R.id.bt_compose_operator, R.id.bt_practice1})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.bt_transform_operator: //转换操作符

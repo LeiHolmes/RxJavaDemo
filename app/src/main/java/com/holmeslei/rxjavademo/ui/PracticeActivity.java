@@ -15,6 +15,8 @@ import com.holmeslei.rxjavademo.model.AppInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -27,6 +29,7 @@ import rx.schedulers.Schedulers;
  * Date           2017/7/24 10:19
  */
 public class PracticeActivity extends AppCompatActivity {
+    @BindView(R.id.rv_app_list)
     RecyclerView rvAppList;
 
     private AppInfoListAdapter adapter;
@@ -36,7 +39,7 @@ public class PracticeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice);
-        rvAppList = (RecyclerView) findViewById(R.id.rv_app_list);
+        ButterKnife.bind(this);
         initRecyclerView();
         initData();
     }
