@@ -9,18 +9,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.rxjava1.CreatActivity">
+        <activity android:name=".ui.CreatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.rxjava1.TransformActivity" />
-        <activity android:name=".ui.rxjava1.FilterActivity" />
-        <activity android:name=".ui.rxjava1.ComposeActivity" />
-        <activity android:name=".ui.rxjava1.PracticeActivity" />
-        <activity android:name=".ui.rxjava2.BackPressureActivity"></activity>
+        <activity android:name=".ui.TransformActivity" />
+        <activity android:name=".ui.FilterActivity" />
+        <activity android:name=".ui.ComposeActivity" />
+        <activity android:name=".ui.PracticeActivity" />
     </application>
 
 </manifest>

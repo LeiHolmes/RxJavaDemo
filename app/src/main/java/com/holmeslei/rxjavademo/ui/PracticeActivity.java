@@ -1,4 +1,4 @@
-package com.holmeslei.rxjavademo.ui.rxjava1;
+package com.holmeslei.rxjavademo.ui;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;

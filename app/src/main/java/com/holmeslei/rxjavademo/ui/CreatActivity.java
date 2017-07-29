@@ -1,4 +1,4 @@
-package com.holmeslei.rxjavademo.ui.rxjava1;
+package com.holmeslei.rxjavademo.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
