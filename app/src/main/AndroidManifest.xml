@@ -20,6 +20,7 @@
         <activity android:name=".ui.FilterActivity" />
         <activity android:name=".ui.ComposeActivity" />
         <activity android:name=".ui.PracticeActivity" />
+        <activity android:name=".ui.BackPressureActivity"></activity>
     </application>
 
 </manifest>

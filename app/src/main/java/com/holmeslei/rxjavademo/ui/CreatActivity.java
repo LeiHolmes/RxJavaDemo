@@ -395,7 +395,8 @@ public class CreatActivity extends AppCompatActivity {
                 });
     }
 
-    @OnClick({R.id.bt_transform_operator, R.id.bt_filter_operator, R.id.bt_compose_operator, R.id.bt_practice1})
+    @OnClick({R.id.bt_transform_operator, R.id.bt_filter_operator, R.id.bt_compose_operator,
+            R.id.bt_practice, R.id.bt_back_pressure})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.bt_transform_operator: //转换操作符
@@ -407,8 +408,11 @@ public class CreatActivity extends AppCompatActivity {
             case R.id.bt_compose_operator: //组合操作符
                 startActivity(new Intent(this, ComposeActivity.class));
                 break;
-            case R.id.bt_practice1: //实践练习
+            case R.id.bt_practice: //实践练习
                 startActivity(new Intent(this, PracticeActivity.class));
+                break;
+            case R.id.bt_back_pressure: //背压问题
+                startActivity(new Intent(this, BackPressureActivity.class));
                 break;
         }
     }

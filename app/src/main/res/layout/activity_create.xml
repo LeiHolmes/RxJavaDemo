@@ -44,9 +44,15 @@
             android:text="组合操作符" />
 
         <Button
-            android:id="@+id/bt_practice1"
+            android:id="@+id/bt_practice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="实践出真知" />
+
+        <Button
+            android:id="@+id/bt_back_pressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="背压问题" />
     </LinearLayout>
 </RelativeLayout>
