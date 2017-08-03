@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.holmeslei.rxjavademo.ui.MainActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="50dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/bt_create_operator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="创建操作符" />
+
+        <Button
+            android:id="@+id/bt_transform_operator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="转换操作符" />
+
+        <Button
+            android:id="@+id/bt_filter_operator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="过滤操作符" />
+
+        <Button
+            android:id="@+id/bt_compose_operator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="组合操作符" />
+
+        <Button
+            android:id="@+id/bt_practice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="实践出真知" />
+
+        <Button
+            android:id="@+id/bt_back_pressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="背压问题" />
+    </LinearLayout>
+
+</RelativeLayout>

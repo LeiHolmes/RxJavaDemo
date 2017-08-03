@@ -1,16 +1,12 @@
 package com.holmeslei.rxjavademo.ui;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.holmeslei.rxjavademo.R;
-import com.holmeslei.rxjavademo.model.Community;
-import com.holmeslei.rxjavademo.model.House;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;

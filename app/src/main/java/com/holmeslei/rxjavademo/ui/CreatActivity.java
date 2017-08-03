@@ -1,10 +1,8 @@
 package com.holmeslei.rxjavademo.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.holmeslei.rxjavademo.R;
@@ -13,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -25,11 +23,13 @@ import rx.schedulers.Schedulers;
 
 /**
  * Description:   RxJava创建操作符
- * 整体学习顺序CreatActivity-->TransformActivity-->FilterActivity-->ComposeActivity
  * author         xulei
  * Date           2017/7/14 17:36
  */
 public class CreatActivity extends AppCompatActivity {
+
+    @BindView(R.id.tv_create_text)
+    TextView tvCreateText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,30 +390,8 @@ public class CreatActivity extends AppCompatActivity {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {
-                        ((TextView) findViewById(R.id.tv_create_text)).setText("创建操作符更新数据");
+                        tvCreateText.setText("创建操作符更新数据");
                     }
                 });
-    }
-
-    @OnClick({R.id.bt_transform_operator, R.id.bt_filter_operator, R.id.bt_compose_operator,
-            R.id.bt_practice, R.id.bt_back_pressure})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.bt_transform_operator: //转换操作符
-                startActivity(new Intent(this, TransformActivity.class));
-                break;
-            case R.id.bt_filter_operator: //过滤操作符
-                startActivity(new Intent(this, FilterActivity.class));
-                break;
-            case R.id.bt_compose_operator: //组合操作符
-                startActivity(new Intent(this, ComposeActivity.class));
-                break;
-            case R.id.bt_practice: //实践练习
-                startActivity(new Intent(this, PracticeActivity.class));
-                break;
-            case R.id.bt_back_pressure: //背压问题
-                startActivity(new Intent(this, BackPressureActivity.class));
-                break;
-        }
     }
 }
