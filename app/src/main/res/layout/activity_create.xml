@@ -10,5 +10,5 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:text="转换操作符" />
+        android:text="创建操作符" />
 </RelativeLayout>
