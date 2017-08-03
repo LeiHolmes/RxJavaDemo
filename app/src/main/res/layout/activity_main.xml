@@ -5,11 +5,22 @@
     android:layout_height="match_parent"
     tools:context="com.holmeslei.rxjavademo.ui.MainActivity">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_margin="50dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="20dp"
+        android:text="RxJava1使用Demo"
+        android:textColor="#000"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_title"
+        android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
