@@ -185,7 +185,7 @@ public class FilterActivity extends AppCompatActivity {
                         //由输出结果可以看出由于设定限流时间为400ms，所以1-4并没有被发射而是被过滤了
                     }
                 });
-        
+
         //debounce(Func1)：Func1中的中的call方法返回了一个临时的Observable，如果原始的Observable在发射一个新的数据时，
         //上一个数据根据Func1的call方法生成的临时Observable还没结束，那么上一个数据就会被过滤掉
     }
