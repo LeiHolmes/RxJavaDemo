@@ -74,7 +74,7 @@ Observable.from(communities)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(house -> ShowSearchedHousesMessage());
 ```
-　　搭配上Lambda表达式，代码的简洁度是不是更上一层楼呢？不懂Lambda表达式的童鞋可以跳转到我写的另一篇讲解Lambda表达式的博文：
+　　搭配上Lambda表达式，代码的简洁度是不是更上一层楼呢？不懂Lambda表达式的童鞋可以跳转到我写的另一篇讲解Lambda表达式的博文：  
 　　[Android开发之Lambda表达式基本语法与应用](http://xulei.tech/2017/07/24/Android开发之Lambda表达式基本语法与应用/)
 ### 总结
 　　到此，本篇关于RxJava的简介就介绍完毕了，本篇的目的主要是给大家引入一个RxJava的概念，以便后期更轻松的理解RxJava的原理与运作。下一篇我们再来一起详细研究RxJava的原理及如何使用。  
