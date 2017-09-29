@@ -58,25 +58,7 @@ public class CreatActivity extends AppCompatActivity {
      * create创建操作符
      */
     private void create() {
-        //step1 创建观察者Observer,或者Action1：简洁就一个回调call()
-        Observer observer = new Observer() {
-            @Override
-            public void onCompleted() { //不再有新的事件发出时回调
-                Log.e("rx_test", "onCompleted");
-            }
-
-            @Override
-            public void onError(Throwable e) { //事件处理出现异常时回调
-                Log.e("rx_test", "onError");
-            }
-
-            @Override
-            public void onNext(Object o) { //相当于普通观察者模式的update()
-                Log.e("rx_test", "onNext:" + o.toString());
-            }
-        };
-
-        //step2 创建被观察者Observable
+        //step1 创建被观察者Observable
         //第一种方式
         Observable<Object> observable1 = Observable.create(new Observable.OnSubscribe<Object>() {
 
@@ -94,6 +76,24 @@ public class CreatActivity extends AppCompatActivity {
         //第三种方式
         String[] parameters = {"one", "two", "three"};
         Observable observable3 = Observable.from(parameters);
+        
+        //step2 创建观察者Observer,或者Action1：简洁就一个回调call()
+        Observer observer = new Observer() {
+            @Override
+            public void onCompleted() { //不再有新的事件发出时回调
+                Log.e("rx_test", "onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) { //事件处理出现异常时回调
+                Log.e("rx_test", "onError");
+            }
+
+            @Override
+            public void onNext(Object o) { //相当于普通观察者模式的update()
+                Log.e("rx_test", "onNext:" + o.toString());
+            }
+        };
 
         //step3 被观察者Observable订阅观察者Observer
         observable1.subscribe(observer);
