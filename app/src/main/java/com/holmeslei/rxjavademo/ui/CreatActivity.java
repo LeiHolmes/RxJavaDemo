@@ -171,7 +171,7 @@ public class CreatActivity extends AppCompatActivity {
 
     /**
      * just创建操作符
-     * 将某个对象转化为Observable对象，并且将其发射出去
+     * 将某个或某些对象转化为Observable对象，并且将其发射出去
      * 可为一个或多个数字，字符串。也可为集合，数组，Iterate对象等。
      */
     private void just() {
@@ -220,7 +220,7 @@ public class CreatActivity extends AppCompatActivity {
      */
     private void range() {
         //输出结果 5，6，7，8，9
-        Observable.range(5, 5).subscribe(new Action1<Integer>() {
+        Observable.range(4, 5).subscribe(new Action1<Integer>() {
             @Override
             public void call(Integer integer) {
                 Log.e("rx_test", "range：" + integer);
@@ -282,7 +282,6 @@ public class CreatActivity extends AppCompatActivity {
                         Log.e("rx_test", "interval：" + aLong);
                     }
                 });
-
     }
 
     /**
