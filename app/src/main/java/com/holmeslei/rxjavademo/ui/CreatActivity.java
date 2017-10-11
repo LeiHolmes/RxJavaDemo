@@ -17,6 +17,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.schedulers.Schedulers;
@@ -38,6 +39,7 @@ public class CreatActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         create();
         createByChain();
+        createByAction();
         just();
         from();
         range();
@@ -76,7 +78,7 @@ public class CreatActivity extends AppCompatActivity {
         //第三种方式
         String[] parameters = {"one", "two", "three"};
         Observable observable3 = Observable.from(parameters);
-        
+
         //step2 创建观察者Observer,或者Action1：简洁就一个回调call()
         Observer observer = new Observer() {
             @Override
@@ -134,6 +136,38 @@ public class CreatActivity extends AppCompatActivity {
         });
         //.subscribe()中的参数也可用ActionX替代，好处是只有一个回调方法call()。
     }
+
+    /**
+     * create创建操作符使用ActionX代替Observer
+     * 这样不用重写三个回调方法，需要哪个加哪个
+     */
+    private void createByAction() {
+        Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                for (int i = 0; i < 5; i++) {
+                    subscriber.onNext("xulei" + i);
+                }
+                subscriber.onCompleted();
+            }
+        }).subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                Log.e("rx_test", "onNext:" + s);
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e("rx_test", "onError:" + throwable.getMessage());
+            }
+        }, new Action0() {
+            @Override
+            public void call() {
+                Log.e("rx_test", "onComplete");
+            }
+        });
+    }
+
 
     /**
      * just创建操作符
