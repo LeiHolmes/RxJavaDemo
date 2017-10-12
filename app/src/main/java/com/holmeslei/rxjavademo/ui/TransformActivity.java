@@ -31,13 +31,13 @@ public class TransformActivity extends AppCompatActivity {
         setContentView(R.layout.activity_transform);
         initData();
         //转换操作符
-//        map();
-//        flatMap();
-//        concatMap();
+        map();
+        flatMap();
+        concatMap();
         flatMapIterable();
-//        switchMap();
-//        scan();
-//        groupBy();
+        switchMap();
+        scan();
+        groupBy();
     }
 
     /**
@@ -179,7 +179,7 @@ public class TransformActivity extends AppCompatActivity {
     /**
      * scan转换操作符
      * 对一个序列的数据应用一个函数，
-     * 并将这个函数的结果发射出去作为下个数据应用合格函数时的第一个参数使用。
+     * 并将这个函数的结果发射出去作为下个数据应用函数时的第一个参数使用。
      */
     private void scan() {
         //例如：先输出1，再将1+2=3作为下个数据发出，3+3=6再作为下个数据发出，以此类推。
@@ -189,12 +189,13 @@ public class TransformActivity extends AppCompatActivity {
                     public Integer call(Integer integer, Integer integer2) {
                         return integer + integer2;
                     }
-                }).subscribe(new Action1<Integer>() {
-            @Override
-            public void call(Integer integer) {
-                Log.e("rx_test", "scan：" + integer);
-            }
-        });
+                })
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "scan：" + integer);
+                    }
+                });
     }
 
     /**
@@ -213,7 +214,7 @@ public class TransformActivity extends AppCompatActivity {
         houseList.add(new House(188.7f, 3, 400, "精致装修", "帝豪家园"));
         houseList.add(new House(88.6f, 2, 180, "普通装修", "东方花园"));
         //根据小区名称进行分类
-        Observable<GroupedObservable<String, House>> groupedObservableObservable = Observable
+        Observable<GroupedObservable<String, House>> groupByCommunityNameObservable = Observable
                 .from(houseList)
                 .groupBy(new Func1<House, String>() {
                     @Override
@@ -221,7 +222,7 @@ public class TransformActivity extends AppCompatActivity {
                         return house.getCommunityName();
                     }
                 });
-        Observable.concat(groupedObservableObservable) //concat组合操作符，将多个Observable有序组合并发送，详见ComposeActivity
+        Observable.concat(groupByCommunityNameObservable) //concat组合操作符，将多个Observable有序组合并发送，详见ComposeActivity
                 .subscribe(new Action1<House>() {
                     @Override
                     public void call(House house) {
