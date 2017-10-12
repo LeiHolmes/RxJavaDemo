@@ -3,14 +3,14 @@ package com.holmeslei.rxjavademo.model;
 import java.util.List;
 
 /**
- * Description:
+ * Description:   小区实体
  * author         xulei
  * Date           2017/7/4
  */
 
 public class Community {
-    private String communityName;
-    private List<House> houses;
+    private String communityName; //小区名称
+    private List<House> houses; //房源集合
 
     public Community() {
     }

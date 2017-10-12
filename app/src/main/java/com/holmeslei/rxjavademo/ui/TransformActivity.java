@@ -31,13 +31,13 @@ public class TransformActivity extends AppCompatActivity {
         setContentView(R.layout.activity_transform);
         initData();
         //转换操作符
-        map();
-        flatMap();
-        concatMap();
+//        map();
+//        flatMap();
+//        concatMap();
         flatMapIterable();
-        switchMap();
-        scan();
-        groupBy();
+//        switchMap();
+//        scan();
+//        groupBy();
     }
 
     /**
@@ -80,19 +80,32 @@ public class TransformActivity extends AppCompatActivity {
      * 一对多转换
      */
     private void flatMap() {
-        //将Community集合转换为每一套房子，获取其房子大小
+        //RxJava原始实现方法
+        Observable.from(communities)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        for (House house : community.getHouses()) {
+                            Log.e("rx_test", "flatmap原始：" + house.getSize());
+                        }
+                    }
+                });
+        //flatMap实现方法
+        //将Community集合转换为每一套房子，获取其房源信息
         Observable.from(communities)
                 .flatMap(new Func1<Community, Observable<House>>() {
                     @Override
                     public Observable<House> call(Community community) {
                         return Observable.from(community.getHouses());
                     }
-                }).subscribe(new Action1<House>() {
-            @Override
-            public void call(House house) {
-                Log.e("rx_test", "flatMap：房子大小为：" + house.getSize());
-            }
-        });
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "flatMap：小区名称：" + house.getCommunityName()
+                                + "，价格：" + house.getPrice() + "，楼层：" + house.getFloor());
+                    }
+                });
     }
 
     /**
@@ -100,7 +113,7 @@ public class TransformActivity extends AppCompatActivity {
      * 解决了flatMap()的交叉问题，能把发射的值连续在一起
      */
     private void concatMap() {
-        //将Community集合转换为每一套房子，获取其房子大小
+        //将Community集合转换为每一套房子，获取其房源信息
         Observable.from(communities)
                 .concatMap(new Func1<Community, Observable<House>>() {
                     @Override
@@ -110,7 +123,8 @@ public class TransformActivity extends AppCompatActivity {
                 }).subscribe(new Action1<House>() {
             @Override
             public void call(House house) {
-                Log.e("rx_test", "concatMap：房子大小为：" + house.getSize());
+                Log.e("rx_test", "flatMap：小区名称：" + house.getCommunityName()
+                        + "，价格：" + house.getPrice() + "，楼层：" + house.getFloor());
             }
         });
     }
@@ -121,7 +135,7 @@ public class TransformActivity extends AppCompatActivity {
      * 不同之处在于flatMapIterable()转化多个Observable是使用Iterable作为源数据的
      */
     private void flatMapIterable() {
-        //将Community集合转换为每一套房子，获取其房子大小
+        //将Community集合转换为每一套房子，获取其房源信息
         Observable.from(communities)
                 .flatMapIterable(new Func1<Community, Iterable<House>>() {
                     @Override
@@ -131,7 +145,8 @@ public class TransformActivity extends AppCompatActivity {
                 }).subscribe(new Action1<House>() {
             @Override
             public void call(House house) {
-                Log.e("rx_test", "flatMapIterable：房子大小为：" + house.getSize());
+                Log.e("rx_test", "flatMap：小区名称：" + house.getCommunityName()
+                        + "，价格：" + house.getPrice() + "，楼层：" + house.getFloor());
             }
         });
     }
@@ -144,19 +159,21 @@ public class TransformActivity extends AppCompatActivity {
      * 并开始监视当前发射的这一个。
      */
     private void switchMap() {
-        //将Community集合转换为每一套房子，获取其房子大小
+        //将Community集合转换为每一套房子，获取其房源信息
         Observable.from(communities)
                 .switchMap(new Func1<Community, Observable<House>>() {
                     @Override
                     public Observable<House> call(Community community) {
                         return Observable.from(community.getHouses());
                     }
-                }).subscribe(new Action1<House>() {
-            @Override
-            public void call(House house) {
-                Log.e("rx_test", "switchMap：房子大小为：" + house.getSize());
-            }
-        });
+                })
+                .subscribe(new Action1<House>() {
+                    @Override
+                    public void call(House house) {
+                        Log.e("rx_test", "flatMap：小区名称：" + house.getCommunityName()
+                                + "，价格：" + house.getPrice() + "，楼层：" + house.getFloor());
+                    }
+                });
     }
 
     /**
@@ -219,7 +236,7 @@ public class TransformActivity extends AppCompatActivity {
     private void initData() {
         communities = new ArrayList<>();
         List<House> houses1 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses1.add(new House(105.6f, i, 200, "简单装修", "东方花园"));
             } else {
@@ -229,7 +246,7 @@ public class TransformActivity extends AppCompatActivity {
         communities.add(new Community("东方花园", houses1));
 
         List<House> houses2 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses2.add(new House(88.6f, i, 166, "中等装修", "马德里春天"));
             } else {
@@ -239,7 +256,7 @@ public class TransformActivity extends AppCompatActivity {
         communities.add(new Community("马德里春天", houses2));
 
         List<House> houses3 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses3.add(new House(188.7f, i, 724, "豪华装修", "帝豪家园"));
             } else {

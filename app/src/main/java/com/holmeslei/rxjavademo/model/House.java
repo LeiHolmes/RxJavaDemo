@@ -1,17 +1,17 @@
 package com.holmeslei.rxjavademo.model;
 
 /**
- * Description:
+ * Description:   房源实体
  * author         xulei
  * Date           2017/7/4
  */
 
 public class House {
-    private float size;
-    private int floor;
-    private int price;
-    private String decoration;
-    private String communityName;
+    private float size; //大小
+    private int floor; //楼层
+    private int price; //总价
+    private String decoration; //装修程度
+    private String communityName; //小区名称
 
     public House() {
     }
