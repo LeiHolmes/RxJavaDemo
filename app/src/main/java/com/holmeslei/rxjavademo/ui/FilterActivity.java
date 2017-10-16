@@ -32,14 +32,14 @@ public class FilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
         initData();
-        filter();
-        take();
+//        filter();
+//        take();
         skip();
-        debounce();
-        distinct();
-        elementAt();
-        first();
-        last();
+//        debounce();
+//        distinct();
+//        elementAt();
+//        first();
+//        last();
     }
 
     /**
@@ -157,6 +157,8 @@ public class FilterActivity extends AppCompatActivity {
      * skip过滤操作符
      * skip：忽略发射Observable的前n项数据
      * skipLast：忽略发射Observable的后n项数据
+     * skipUntil：
+     * skipWhile：
      */
     private void skip() {
         //忽略前两个小区数据
@@ -175,6 +177,40 @@ public class FilterActivity extends AppCompatActivity {
                     @Override
                     public void call(Community community) {
                         Log.e("rx_test", "skip：忽略后两个小区：" + community.getCommunityName());
+                    }
+                });
+        //skipUntil
+        Observable<Long> observableA = Observable.interval(300, TimeUnit.MILLISECONDS);
+        Observable<Long> observableB = Observable.interval(800, TimeUnit.MILLISECONDS);
+        observableA.skipUntil(observableB)
+                .subscribe(new Subscriber<Long>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.e("rx_test", "skipUntil：" + "onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("rx_test", "skipUntil：onError：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Long aLong) {
+                        Log.e("rx_test", "skipUntil：onNext：" + aLong);
+                    }
+                });
+        //skipWhile
+        Observable.just(1, 2, 3, 4, 5)
+                .skipWhile(new Func1<Integer, Boolean>() {
+                    @Override
+                    public Boolean call(Integer integer) {
+                        return integer != 3;
+                    }
+                })
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "skipWhile：" + integer);
                     }
                 });
     }
