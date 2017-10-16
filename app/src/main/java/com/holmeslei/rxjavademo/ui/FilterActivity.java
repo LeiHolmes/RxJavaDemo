@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -34,9 +35,9 @@ public class FilterActivity extends AppCompatActivity {
         filter();
         take();
         skip();
-        elementAt();
         debounce();
         distinct();
+        elementAt();
         first();
         last();
     }
@@ -72,7 +73,10 @@ public class FilterActivity extends AppCompatActivity {
      * take过滤转换符
      * take：获取序列前n个元素并发射
      * takeLast：获取序列后n个元素并发射
-     * takeUntil：通过Func1中的call方法来判断是否需要终止当前Observable发射数据
+     * takeUntil(Observable)：订阅并开始发射原始Observable，同时监视我们提供的第二个Observable。
+     * 如果第二个Observable发射了一项数据或者发射了一个终止通知，takeUntil()返回的Observable会停止发射原始Observable并终止
+     * takeUntil(Func1)：通过Func1中的call方法来判断是否需要终止当前Observable发射数据
+     * takeWhile：类似于takeUntil(Func1)，当Observable发射的数据不满足条件时中止Observable的发射。
      */
     private void take() {
         //take：获取前两个小区名
@@ -93,7 +97,27 @@ public class FilterActivity extends AppCompatActivity {
                         Log.e("rx_test", "takeLast：后两个小区：" + community.getCommunityName());
                     }
                 });
-        //takeUntil：与flatmap结合过滤直到房价大于500时中断当前小区Observable发射House
+        //takeUntil(Observable)
+        Observable<Long> observableA = Observable.interval(300, TimeUnit.MILLISECONDS);
+        Observable<Long> observableB = Observable.interval(800, TimeUnit.MILLISECONDS);
+        observableA.takeUntil(observableB)
+                .subscribe(new Subscriber<Long>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.e("rx_test", "takeUntil(Observable)：" + "onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("rx_test", "takeUntil(Observable)：onError：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Long aLong) {
+                        Log.e("rx_test", "takeUntil(Observable)：onNext：" + aLong);
+                    }
+                });
+        //takeUntil(Func1)：与flatmap结合过滤直到房价大于500时中断当前小区Observable发射House
         Observable.from(communities)
                 .flatMap(new Func1<Community, Observable<House>>() {
                     @Override
@@ -110,7 +134,21 @@ public class FilterActivity extends AppCompatActivity {
                 .subscribe(new Action1<House>() {
                     @Override
                     public void call(House house) {
-                        Log.e("rx_test", "takeUntil：大于500时中断发射：" + house.getCommunityName() + "小区，房价：" + house.getPrice());
+                        Log.e("rx_test", "takeUntil(Func1)：大于500时中断发射：" + house.getCommunityName() + "小区，房价：" + house.getPrice());
+                    }
+                });
+        //takeWhile：当发射的数据等于3时中止发射
+        Observable.just(1, 2, 3, 4, 5)
+                .takeWhile(new Func1<Integer, Boolean>() {
+                    @Override
+                    public Boolean call(Integer integer) {
+                        return integer != 3;
+                    }
+                })
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "takeWhile：" + integer);
                     }
                 });
     }
@@ -142,21 +180,6 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     /**
-     * elementAt过滤操作符
-     * 获取Observable的第n项数据并当做唯一数据发射
-     */
-    private void elementAt() {
-        Observable.from(communities)
-                .elementAt(1)
-                .subscribe(new Action1<Community>() {
-                    @Override
-                    public void call(Community community) {
-                        Log.e("rx_test", "elementAt：第二个小区：" + community.getCommunityName());
-                    }
-                });
-    }
-
-    /**
      * debounce过滤操作符
      * debounce(long, TimeUnit)：过滤由Observable发射的速率过快的数据，起到限流的作用
      * debounce(Func1)：根据Func1的call方法中的函数来过滤
@@ -177,15 +200,24 @@ public class FilterActivity extends AppCompatActivity {
                 }
             }
         }).subscribeOn(Schedulers.newThread())
-                .debounce(400, TimeUnit.MILLISECONDS)
-                .subscribe(new Action1<Integer>() {
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .subscribe(new Observer<Integer>() {
                     @Override
-                    public void call(Integer integer) {
+                    public void onCompleted() {
+                        Log.e("rx_test", "debounce：" + "onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Integer integer) {
                         Log.e("rx_test", "debounce：" + integer);
-                        //由输出结果可以看出由于设定限流时间为400ms，所以1-4并没有被发射而是被过滤了
+                        //由输出结果可以看出由于设定限流时间为500ms，所以1-4并没有被发射而是被过滤了
                     }
                 });
-
         //debounce(Func1)：Func1中的中的call方法返回了一个临时的Observable，如果原始的Observable在发射一个新的数据时，
         //上一个数据根据Func1的call方法生成的临时Observable还没结束，那么上一个数据就会被过滤掉
     }
@@ -253,6 +285,21 @@ public class FilterActivity extends AppCompatActivity {
                     @Override
                     public void call(House house) {
                         Log.e("rx_test", "distinctUntilChanged(Func1)：向前去重：" + house.getCommunityName() + "小区，大小：" + house.getSize());
+                    }
+                });
+    }
+
+    /**
+     * elementAt过滤操作符
+     * 获取Observable的第n项数据并当做唯一数据发射
+     */
+    private void elementAt() {
+        Observable.from(communities)
+                .elementAt(1)
+                .subscribe(new Action1<Community>() {
+                    @Override
+                    public void call(Community community) {
+                        Log.e("rx_test", "elementAt：第二个小区：" + community.getCommunityName());
                     }
                 });
     }
@@ -329,7 +376,7 @@ public class FilterActivity extends AppCompatActivity {
     private void initData() {
         communities = new ArrayList<>();
         List<House> houses1 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses1.add(new House(105.6f, i, 200, "简单装修", "东方花园"));
             } else {
@@ -339,7 +386,7 @@ public class FilterActivity extends AppCompatActivity {
         communities.add(new Community("东方花园", houses1));
 
         List<House> houses2 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses2.add(new House(88.6f, i, 166, "中等装修", "马德里春天"));
             } else {
@@ -349,7 +396,7 @@ public class FilterActivity extends AppCompatActivity {
         communities.add(new Community("马德里春天", houses2));
 
         List<House> houses3 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i % 2 == 0) {
                 houses3.add(new House(188.7f, i, 724, "豪华装修", "帝豪家园"));
             } else {
