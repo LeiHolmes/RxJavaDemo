@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Observer;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -26,24 +28,25 @@ public class ComposeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose);
         merge();
-        startWith();
-        concat();
-        zip();
-        combineLatest();
-        switchOnNext();
-        join();
+//        concat();
+//        zip();
+//        join();
+//        startWith();
+//        switchOnNext();
+//        combineLatest();
     }
 
     /**
      * merge组合操作符
      * 将两个Observable发射的事件序列组合并成一个事件序列
      * 合并后发射的数据时无序的
+     * mergeDelayError：合并过程中产生错误并不会中断合并，而是将产生的错误放到所有元素都合并完成之后再执行
      */
     private void merge() {
         //将一个发送字母的Observable与发送数字的Observable合并发射
         final String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I"};
-        //字母Observable，每300ms发射一次
-        Observable<String> wordSequence = Observable.interval(300, TimeUnit.MILLISECONDS)
+        //字母Observable，每200ms发射一次
+        Observable<String> wordSequence = Observable.interval(200, TimeUnit.MILLISECONDS)
                 .map(new Func1<Long, String>() {
                     @Override
                     public String call(Long position) {
@@ -52,7 +55,7 @@ public class ComposeActivity extends AppCompatActivity {
                 })
                 .take(words.length);
         //数字Observable，每500ms发射一次
-        Observable<Long> numberSequence = Observable.interval(500, TimeUnit.MILLISECONDS).take(5);
+        Observable<Long> numberSequence = Observable.interval(500, TimeUnit.MILLISECONDS).take(4);
         Observable.merge(wordSequence, numberSequence)
                 .subscribe(new Action1<Serializable>() {
                     @Override
@@ -61,30 +64,38 @@ public class ComposeActivity extends AppCompatActivity {
                     }
                 });
         //Observable.merge(Observable[]) 还可以将多个Observable集合合并为一个事件序列
-    }
 
-    /**
-     * startWith组合操作符
-     * 用于在源Observable发射的数据前插入数据
-     */
-    private void startWith() {
-        Observable.just(4, 5, 6, 7, 8, 9)
-                .startWith(1, 2, 3)
-                .subscribe(new Action1<Integer>() {
+        //mergeDelayError操作符
+        //字母Observable，每200ms发射一次，模拟过程中产生一个异常
+        Observable<String> wordSequence1 = Observable.interval(200, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, String>() {
                     @Override
-                    public void call(Integer integer) {
-                        Log.e("rx_test", "startWith：" + integer);
+                    public String call(Long position) {
+                        Long cache = position;
+                        if (cache == 3) {
+                            cache = cache / 0;
+                        }
+                        return words[position.intValue()];
                     }
-                });
-        //startWith(Iterable<T>)：可在序列发射前插入Iterable数据
-        //startWith(Observable<T>)：可在序列发射前插入另一Observable发射的数据
-        Observable<String> baseObservable = Observable.just("A", "B", "C", "D", "E");
-        Observable<String> anOtherObservable = Observable.just("sherlock", "xu");
-        baseObservable.startWith(anOtherObservable)
-                .subscribe(new Action1<String>() {
+                })
+                .take(words.length);
+        //数字Observable，每500ms发射一次
+        Observable<Long> numberSequence1 = Observable.interval(500, TimeUnit.MILLISECONDS).take(4);
+        Observable.mergeDelayError(wordSequence1, numberSequence1)
+                .subscribe(new Action1<Serializable>() {
                     @Override
-                    public void call(String s) {
-                        Log.e("rx_test", "startWith(Observable)：" + s);
+                    public void call(Serializable serializable) {
+                        Log.e("rx_test", "mergeDelayError：" + serializable.toString());
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e("rx_test", "mergeDelayError：" + throwable.getMessage());
+                    }
+                }, new Action0() {
+                    @Override
+                    public void call() {
+                        Log.e("rx_test", "mergeDelayError：onComplete");
                     }
                 });
     }
@@ -127,75 +138,6 @@ public class ComposeActivity extends AppCompatActivity {
                 //由打印结果可看出numberSequence观测序列最后的6并没有发射出来，由于wordSequence观测序列已发射完所有数据，所以组合序列也停止发射数据了
             }
         });
-    }
-
-    /**
-     * combineLatest(Observable, Observable, Func2)组合操作符
-     * 用于将两个Observale最近发射的数据以Func2函数的规则进行组合并发射
-     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
-     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
-     * 发射结果： A0 B0 C0 C1 D1 E1 E2 F2 F3 G3 H3 H4 I4
-     * <p>
-     * 若更换两Observale顺序
-     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
-     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
-     * 发射结果： 0A 0B 0C 1C 1D 2D 2E 2F 3F 3G 3H 4H 4I
-     */
-    private void combineLatest() {
-        //引用merge的例子
-        final String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I"};
-        Observable<String> wordSequence = Observable.interval(300, TimeUnit.MILLISECONDS)
-                .map(new Func1<Long, String>() {
-                    @Override
-                    public String call(Long position) {
-                        return words[position.intValue()];
-                    }
-                })
-                .take(words.length);
-        Observable<Long> numberSequence = Observable.interval(500, TimeUnit.MILLISECONDS).take(5);
-        Observable.combineLatest(wordSequence, numberSequence, new Func2<String, Long, String>() {
-            @Override
-            public String call(String s, Long aLong) {
-                return s + aLong;
-            }
-        }).subscribe(new Action1<Serializable>() {
-            @Override
-            public void call(Serializable serializable) {
-                Log.e("rx_test", "combineLatest：" + serializable.toString());
-            }
-        });
-    }
-
-    /**
-     * switchOnNext(Observable<? extends Observable<? extends T>>组合操作符
-     * 用来将一个发射多个小Observable的源Observable转化为一个Observable，然后发射这个多个小Observable所发射的数据
-     */
-    private void switchOnNext() {
-        //若小Observable正在发射数据时，源Observable又发射了新的小Observable，
-        //则前一个小Observable还未发射的数据会被抛弃，直接发射新的小Observable所发射的数据
-
-        //每隔500ms产生一个Observable
-        Observable<Observable<Long>> observable = Observable.interval(500, TimeUnit.MILLISECONDS)
-                .map(new Func1<Long, Observable<Long>>() {
-                    @Override
-                    public Observable<Long> call(Long aLong) {
-                        //每隔200毫秒产生一组数据（0,10,20,30,40)
-                        return Observable.interval(200, TimeUnit.MILLISECONDS).map(new Func1<Long, Long>() {
-                            @Override
-                            public Long call(Long aLong) {
-                                return aLong * 10;
-                            }
-                        }).take(5);
-                    }
-                }).take(2);
-        Observable.switchOnNext(observable)
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-                        //由打印数据发现第一个小Observable打印到10则停止了发射数据，开始发射下一个Observable的数据了
-                        Log.e("rx_test", "switchOnNext：" + aLong);
-                    }
-                });
     }
 
     /**
@@ -295,5 +237,100 @@ public class ComposeActivity extends AppCompatActivity {
                         });
                     }
                 });
+    }
+
+    /**
+     * startWith组合操作符
+     * 用于在源Observable发射的数据前插入数据
+     */
+    private void startWith() {
+        Observable.just(4, 5, 6, 7, 8, 9)
+                .startWith(1, 2, 3)
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        Log.e("rx_test", "startWith：" + integer);
+                    }
+                });
+        //startWith(Iterable<T>)：可在序列发射前插入Iterable数据
+        //startWith(Observable<T>)：可在序列发射前插入另一Observable发射的数据
+        Observable<String> baseObservable = Observable.just("A", "B", "C", "D", "E");
+        Observable<String> anOtherObservable = Observable.just("sherlock", "xu");
+        baseObservable.startWith(anOtherObservable)
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        Log.e("rx_test", "startWith(Observable)：" + s);
+                    }
+                });
+    }
+
+    /**
+     * switchOnNext(Observable<? extends Observable<? extends T>>组合操作符
+     * 用来将一个发射多个小Observable的源Observable转化为一个Observable，然后发射这个多个小Observable所发射的数据
+     */
+    private void switchOnNext() {
+        //若小Observable正在发射数据时，源Observable又发射了新的小Observable，
+        //则前一个小Observable还未发射的数据会被抛弃，直接发射新的小Observable所发射的数据
+
+        //每隔500ms产生一个Observable
+        Observable<Observable<Long>> observable = Observable.interval(500, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, Observable<Long>>() {
+                    @Override
+                    public Observable<Long> call(Long aLong) {
+                        //每隔200毫秒产生一组数据（0,10,20,30,40)
+                        return Observable.interval(200, TimeUnit.MILLISECONDS).map(new Func1<Long, Long>() {
+                            @Override
+                            public Long call(Long aLong) {
+                                return aLong * 10;
+                            }
+                        }).take(5);
+                    }
+                }).take(2);
+        Observable.switchOnNext(observable)
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        //由打印数据发现第一个小Observable打印到10则停止了发射数据，开始发射下一个Observable的数据了
+                        Log.e("rx_test", "switchOnNext：" + aLong);
+                    }
+                });
+    }
+
+    /**
+     * combineLatest(Observable, Observable, Func2)组合操作符
+     * 用于将两个Observale最近发射的数据以Func2函数的规则进行组合并发射
+     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
+     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
+     * 发射结果： A0 B0 C0 C1 D1 E1 E2 F2 F3 G3 H3 H4 I4
+     * <p>
+     * 若更换两Observale顺序
+     * 数字序列： . . . . . 0 . . . . 1 . . . . 2 . . . . 3 . . . . 4
+     * 字母序列： . . . A . . B . . C . . D . . E . . F . . G . . H . . I
+     * 发射结果： 0A 0B 0C 1C 1D 2D 2E 2F 3F 3G 3H 4H 4I
+     */
+    private void combineLatest() {
+        //引用merge的例子
+        final String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I"};
+        Observable<String> wordSequence = Observable.interval(300, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, String>() {
+                    @Override
+                    public String call(Long position) {
+                        return words[position.intValue()];
+                    }
+                })
+                .take(words.length);
+        Observable<Long> numberSequence = Observable.interval(500, TimeUnit.MILLISECONDS).take(5);
+        Observable.combineLatest(wordSequence, numberSequence, new Func2<String, Long, String>() {
+            @Override
+            public String call(String s, Long aLong) {
+                return s + aLong;
+            }
+        }).subscribe(new Action1<Serializable>() {
+            @Override
+            public void call(Serializable serializable) {
+                Log.e("rx_test", "combineLatest：" + serializable.toString());
+            }
+        });
     }
 }
