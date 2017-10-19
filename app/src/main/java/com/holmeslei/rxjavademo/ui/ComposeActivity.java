@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.Observer;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -253,43 +252,43 @@ public class ComposeActivity extends AppCompatActivity {
         //举例来说，如果某一时刻B发射了一个数据“B”,此时A已经发射了0，1，2，3共四个数据，
         //那么我们的合并操作就会把“B”依次与0,1,2,3配对，得到四组数据： [0, B][1, B] [2, B] [3, B]
 
-        //产生0，5，10，15，20，25的序列
-        Observable<Long> observableA = Observable.interval(1000, TimeUnit.MILLISECONDS)
-                .map(new Func1<Long, Long>() {
+        //产生字母的序列,周期为1000ms
+        String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
+        Observable<String> observableA = Observable.interval(1000, TimeUnit.MILLISECONDS)
+                .map(new Func1<Long, String>() {
                     @Override
-                    public Long call(Long aLong) {
-                        return aLong * 5;
+                    public String call(Long aLong) {
+                        return words[aLong.intValue()];
                     }
-                }).take(5);
-
-        //产生0，10，20，30,40,50的序列,延时500ms发射
+                }).take(8);
+        //产0,1,2,3,4,5,6,7的序列,延时500ms发射,周期为1000ms
         Observable<Long> observableB = Observable.interval(500, 1000, TimeUnit.MILLISECONDS)
                 .map(new Func1<Long, Long>() {
                     @Override
                     public Long call(Long aLong) {
-                        return aLong * 10;
+                        return aLong;
                     }
-                }).take(5);
+                }).take(words.length);
         //join
         observableA.join(observableB,
-                new Func1<Long, Observable<Long>>() {
+                new Func1<String, Observable<Long>>() {
                     @Override
-                    public Observable<Long> call(Long aLong) {
-                        //使ObservableA延迟600毫秒执行
-                        return Observable.just(aLong).delay(600, TimeUnit.MILLISECONDS);
+                    public Observable<Long> call(String s) {
+                        //ObservableA发射的数据有效期为600ms
+                        return Observable.timer(600, TimeUnit.MILLISECONDS);
                     }
                 },
                 new Func1<Long, Observable<Long>>() {
                     @Override
                     public Observable<Long> call(Long aLong) {
-                        //使ObservableB延迟600毫秒执行
-                        return Observable.just(aLong).delay(600, TimeUnit.MILLISECONDS);
+                        //ObservableB发射的数据有效期为600ms
+                        return Observable.timer(600, TimeUnit.MILLISECONDS);
                     }
                 },
-                new Func2<Long, Long, String>() {
+                new Func2<String, Long, String>() {
                     @Override
-                    public String call(Long aLong, Long aLong2) {
-                        return "ObservableA:" + aLong + "-------ObservableB:" + aLong2;
+                    public String call(String s, Long aLong) {
+                        return s + aLong;
                     }
                 }
         ).subscribe(new Action1<String>() {
@@ -301,40 +300,40 @@ public class ComposeActivity extends AppCompatActivity {
 
 
         //groupJoin：与join的不同之处在于第四个参数的的传入函数不一致，又包装了小的Observable
-//        observableA.groupJoin(observableB,
-//                new Func1<Long, Observable<Long>>() {
-//                    @Override
-//                    public Observable<Long> call(Long aLong) {
-//                        return Observable.just(aLong).delay(1600, TimeUnit.MILLISECONDS);
-//                    }
-//                },
-//                new Func1<Long, Observable<Long>>() {
-//                    @Override
-//                    public Observable<Long> call(Long aLong) {
-//                        return Observable.just(aLong).delay(600, TimeUnit.MILLISECONDS);
-//                    }
-//                },
-//                new Func2<Long, Observable<Long>, Observable<String>>() {
-//                    @Override
-//                    public Observable<String> call(final Long aLong, Observable<Long> longObservable) {
-//                        return longObservable.map(new Func1<Long, String>() {
-//                            @Override
-//                            public String call(Long aLong2) {
-//                                return "ObservableA:" + aLong + "-------ObservableB:" + aLong2;
-//                            }
-//                        });
-//                    }
-//                })
-//                .subscribe(new Action1<Observable<String>>() {
-//                    @Override
-//                    public void call(Observable<String> stringObservable) {
-//                        stringObservable.subscribe(new Action1<String>() {
-//                            @Override
-//                            public void call(String s) {
-//                                Log.e("rx_test", "groupJoin：" + s);
-//                            }
-//                        });
-//                    }
-//                });
+        observableA.groupJoin(observableB,
+                new Func1<String, Observable<Long>>() {
+                    @Override
+                    public Observable<Long> call(String s) {
+                        return Observable.timer(600, TimeUnit.MILLISECONDS);
+                    }
+                },
+                new Func1<Long, Observable<Long>>() {
+                    @Override
+                    public Observable<Long> call(Long aLong) {
+                        return Observable.timer(600, TimeUnit.MILLISECONDS);
+                    }
+                },
+                new Func2<String, Observable<Long>, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(final String s, Observable<Long> longObservable) {
+                        return longObservable.map(new Func1<Long, String>() {
+                            @Override
+                            public String call(Long aLong) {
+                                return s + aLong;
+                            }
+                        });
+                    }
+                })
+                .subscribe(new Action1<Observable<String>>() {
+                    @Override
+                    public void call(Observable<String> stringObservable) {
+                        stringObservable.subscribe(new Action1<String>() {
+                            @Override
+                            public void call(String s) {
+                                Log.e("rx_test", "groupJoin：" + s);
+                            }
+                        });
+                    }
+                });
     }
 }
