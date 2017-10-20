@@ -26,12 +26,12 @@ public class ComposeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose);
-//        merge();
-//        concat();
-//        zip();
-//        startWith();
-//        switchOnNext();
-//        combineLatest();
+        merge();
+        concat();
+        zip();
+        startWith();
+        switchOnNext();
+        combineLatest();
         join();
     }
 

@@ -39,7 +39,9 @@ public class AppInfoListAdapter extends RecyclerView.Adapter<AppInfoListAdapter.
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+        //设置应用图标
         holder.ivHead.setImageDrawable(appInfoList.get(position).getAppIcon());
+        //设置应用名称
         holder.tvAppName.setText(appInfoList.get(position).getAppName());
     }
 

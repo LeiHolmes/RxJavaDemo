@@ -3,14 +3,14 @@ package com.holmeslei.rxjavademo.model;
 import android.graphics.drawable.Drawable;
 
 /**
- * Description:
+ * Description:   应用实体
  * author         xulei
  * Date           2017/7/20
  */
 
 public class AppInfo {
-    private String appName;
-    private Drawable appIcon;
+    private String appName; //应用名称
+    private Drawable appIcon; //应用图标
 
     public String getAppName() {
         return appName;
