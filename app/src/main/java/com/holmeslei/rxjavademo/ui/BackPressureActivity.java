@@ -44,7 +44,7 @@ public class BackPressureActivity extends AppCompatActivity {
         //被观察者每过1ms发射一个时间
         Observable.interval(1, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.newThread())
-                .subscribe((aLong) -> {
+                .subscribe((aLong) -> { 
                     //观察者每过1000ms处理一个事件
                     try {
                         Thread.sleep(1000);
