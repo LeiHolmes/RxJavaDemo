@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -41,13 +42,13 @@ public class BackPressureActivity extends AppCompatActivity {
      * 2.背压并不是一个像flatMap一样可以在程序中直接使用的操作符，他只是一种控制事件流速的策略。
      */
     private void simulateBackPressure() {
-        //被观察者每过1ms发射一个时间
+        //被观察者每过1ms发射一个事件
         Observable.interval(1, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.newThread())
-                .subscribe((aLong) -> { 
-                    //观察者每过1000ms处理一个事件
+                .subscribe((aLong) -> {
+                    //观察者每过800ms处理一个事件  
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(800);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -90,7 +91,7 @@ public class BackPressureActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        //处理完毕之后，在通知被观察者发送下一个事件
+                        //处理完毕之后，再通知被观察者发送下一个事件
                         request(1);
                     }
                 });
@@ -102,11 +103,11 @@ public class BackPressureActivity extends AppCompatActivity {
      * 可使用sample，throttleFirst等操作符
      */
     private void controlByFilter() {
-        //使用sample过滤操作符，每隔200ms取里时间点最近的事件发送
+        //使用sample过滤操作符，每隔300ms取里时间点最近的事件发送
         Observable.interval(1, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.newThread())
-                .sample(200, TimeUnit.MILLISECONDS)
-                .subscribe((Long aLong) -> Log.e("rx_test", "controlByFilter：sample：" + aLong));
+                .sample(300, TimeUnit.MILLISECONDS)
+                .subscribe((aLong) -> Log.e("rx_test", "controlByFilter：sample：" + aLong));
     }
 
     /**
@@ -134,7 +135,7 @@ public class BackPressureActivity extends AppCompatActivity {
      * onBackpressureDrop：将observable发送的事件抛弃掉，直到subscriber再次调用request(n)方法的时候，再发送这之后的n个事件。
      */
     private void controlBySpecialOperator() {
-        //使用onBackpressureDrop可是不支持背压的操作符也可响应下游观察者的request(n)
+        //使用onBackpressureDrop可使不支持背压的操作符也可响应观察者的request(n)
         Observable.interval(1, TimeUnit.MILLISECONDS)
                 .onBackpressureDrop()
                 .observeOn(Schedulers.newThread())
@@ -153,12 +154,12 @@ public class BackPressureActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Log.e("rx_test", "controlBySpecialOperator：" + "onError");
                     }
 
                     @Override
                     public void onNext(Long aLong) {
-                        Log.e("rx_test", "controlBySpecialOperator：" + aLong);
+                        Log.e("rx_test", "controlBySpecialOperator：onNext：" + aLong);
                         try {
                             Thread.sleep(500);
                             request(1);
