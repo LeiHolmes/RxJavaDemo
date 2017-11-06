@@ -32,14 +32,14 @@ public class FilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
         initData();
-//        filter();
-//        take();
+        filter();
+        take();
         skip();
-//        debounce();
-//        distinct();
-//        elementAt();
-//        first();
-//        last();
+        debounce();
+        distinct();
+        elementAt();
+        first();
+        last();
     }
 
     /**
